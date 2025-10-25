@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import fetch from "node-fetch";
 import path from "path";
 import { fileURLToPath } from "url";
+import disputeRoute from "./disputeRoute.js";  // ✅ Added this line
 
 dotenv.config();
 
@@ -12,6 +13,8 @@ const __dirname = path.dirname(__filename);
 const app = express();
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json());
+
+app.use("/api", disputeRoute);  // ✅ Added this line
 
 app.post("/api/rewrite", async (req, res) => {
   const { text } = req.body;
@@ -42,4 +45,5 @@ app.post("/api/rewrite", async (req, res) => {
   }
 });
 
-app.listen(3000, () => console.log("🚀 GhostWrite server running on http://localhost:3000"));
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`🚀 GhostWrite server running on port ${PORT}`));
