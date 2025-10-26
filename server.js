@@ -47,3 +47,28 @@ app.post("/api/rewrite", async (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 GhostWrite server running on port ${PORT}`));
+
+import Stripe from "stripe";
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+app.post("/api/create-checkout-session", async (req, res) => {
+  try {
+    const session = await stripe.checkout.sessions.create({
+      mode: "payment",
+      line_items: [{
+        price_data: {
+          currency: "usd",
+          product_data: { name: "AI Chargeback Letter" },
+          unit_amount: 999
+        },
+        quantity: 1
+      }],
+      success_url: "https://ghostwrite-1.onrender.com/chargeback.html?success=true",
+      cancel_url: "https://ghostwrite-1.onrender.com/chargeback.html?canceled=true"
+    });
+    res.json({ url: session.url });
+  } catch (err) {
+    console.error("Stripe error:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
